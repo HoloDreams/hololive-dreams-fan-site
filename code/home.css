@@ -1,4 +1,4 @@
-﻿body {
+body {
   margin: 0;
   background-color: #fff; 
   background-image: url('background.png'); 
@@ -22,7 +22,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 32px;
 }
 
 .logo img {
@@ -55,7 +55,9 @@
 
 .nav-links a {
   display: inline-block;
-  text-decoration: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   background-color: #46d4ff; 
   color: rgb(255, 255, 255);
   padding: 10px 20px;
@@ -75,7 +77,7 @@
 
 h1 {
   text-align: center;
-  margin-top: 28px;
+  margin-top: 20px;
   font-size: 48px;
   font-weight: 900;
   background: linear-gradient(45deg, #ffcb43, #ec6cb9);
@@ -88,7 +90,7 @@ h1 {
 
 ha {
   text-align: center;
-  margin-top: 28px;
+  margin-top: 20px;
   font-size: 36px;
   font-weight: 900;
   background: linear-gradient(45deg, #46d4ff, #0094d8);
@@ -103,7 +105,7 @@ h2 {
   font-size: 22px;
   color: #535353;
   line-height: 1.8;
-  margin-top: 28px;
+  margin-top: 20px;
   padding: 0 10%;
 }
 
@@ -131,7 +133,7 @@ h3::before, h3::after {
   display: flex;
   flex-direction: column; 
   align-items: center;    
-  gap: 20px;              
+  gap: 32px;              
   margin-top: 50px;
   margin-bottom: 80px;
   padding: 0 20px;
@@ -139,14 +141,16 @@ h3::before, h3::after {
 
 .download-container {
   display: flex;
-  gap: 20px;
+  gap: 32px;
   width: 500px;
   max-width: 100%;
 }
 
 .download-btn {
   flex: 1;
-  text-decoration: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   padding: 20px 10px;
   font-size: 20px;
   font-weight: bold;
@@ -168,7 +172,9 @@ h3::before, h3::after {
 
 .main-btn {
   display: inline-block;
-  text-decoration: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   padding: 25px 0;
   width: 500px;
   max-width: 100%;
@@ -235,7 +241,7 @@ body::-webkit-scrollbar {
 
 .blue-strip {
   width: 100vw;
-  height: 360px;
+  height: 560px;
   background-color: #38c0ff81;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
@@ -268,7 +274,7 @@ body::-webkit-scrollbar {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  margin-top: 28px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -277,7 +283,7 @@ body::-webkit-scrollbar {
 
 .carousel-container {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .carousel-track {
@@ -286,16 +292,17 @@ body::-webkit-scrollbar {
 
 .carousel-scroll {
   display: flex;
-  gap: 20px;
-  padding: 0 90px 20px;
+  gap: 32px;
+  padding: 34px calc((100vw - min(100vw, 1760px)) / 2 + 72px) 42px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scroll-behavior: auto;
   box-sizing: border-box;
 }
 
 .carousel-scroll::-webkit-scrollbar {
-  height: 8px;
+  display: none;
 }
 
 .carousel-scroll::-webkit-scrollbar-thumb {
@@ -304,9 +311,9 @@ body::-webkit-scrollbar {
 }
 
 .carousel-item {
-  flex: 0 0 320px;
-  width: 320px;
-  min-height: 180px;
+  flex: 0 0 clamp(420px, 29vw, 560px);
+  width: clamp(420px, 29vw, 560px);
+  min-height: 330px;
   box-sizing: border-box;
   scroll-snap-align: center;
 }
@@ -320,7 +327,17 @@ body::-webkit-scrollbar {
 
 .instagram-news-item {
   position: relative;
-  min-height: 180px;
+  min-height: 330px;
+  transform: scale(0.86);
+  opacity: 0.78;
+  z-index: 1;
+  transition: transform 0.5s ease, opacity 0.5s ease, z-index 0.5s ease;
+}
+
+.instagram-news-item.is-active {
+  transform: scale(1.08);
+  opacity: 1;
+  z-index: 5;
 }
 
 .instagram-image-card {
@@ -332,7 +349,22 @@ body::-webkit-scrollbar {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 8px 20px rgba(0, 174, 255, 0.18);
-  text-decoration: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.instagram-image-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.42);
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.instagram-news-item.is-active .instagram-image-card::after {
+  opacity: 0;
 }
 
 .instagram-image-card img {
@@ -342,17 +374,45 @@ body::-webkit-scrollbar {
   object-fit: cover;
 }
 
-.instagram-image-label {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  padding: 5px 12px;
+.news-image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.news-image-viewer.is-open {
+  display: flex;
+}
+
+.news-image-viewer-img {
+  display: block;
+  max-width: min(92vw, 1200px);
+  max-height: 86vh;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  object-fit: contain;
+}
+
+.news-image-viewer-close {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border: 0;
   border-radius: 999px;
   background: #00aeff;
   color: #fff;
-  font-size: 13px;
+  font-size: 30px;
+  line-height: 1;
   font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 .carousel-btn {
   position: absolute;
@@ -494,6 +554,7 @@ body::-webkit-scrollbar {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-sizing: border-box;
+  scroll-snap-align: center;
 }
 
 h1::after,
@@ -507,6 +568,17 @@ h1::after,
   border-radius: 999px;
   background: #46d4ff;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
