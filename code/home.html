@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ホロドリ非公式サイト</title>
+  <link rel="stylesheet" href="home.css">
+  <link rel="icon" href="img/favicon.ico">
+  
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+
+  <style>
+    body {
+      background-image: url('background.png') !important;
+      background-repeat: no-repeat !important;
+      background-position: center center !important;
+      background-size: cover !important;
+      background-attachment: fixed !important;
+    }
+    .navbar {
+      background-color: rgba(248, 248, 248, 0.342) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .fade-in-up.is-show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="img/logo.webp" alt="logo">
+      <span class="site-title">ホロライブドリームス<br>非公式サイト</span>
+    </div>
+    
+    <ul class="nav-links">
+      <li><a href="https://opening.hololive-dreams.com/" target="_blank">公式サイトはこちら</a></li>
+      <li><a href="https://x.com/hololive_dreams" target="_blank">公式Xはこちら</a></li>
+      <li><a href="https://www.youtube.com/@hololivedreams" target="_blank">公式YouTubeはこちら</a></li>
+    </ul>
+  </nav>
+
+  <main class="fade-in-up">
+    <h1>『ホロライブドリームス』とは</h1>
+    
+    <h2>女性VTuberグループ「ホロライブ」所属の総勢50名以上のタレントが参加する、<br>
+    ホロライブ初の公式スマートフォン向けゲームです。
+    <br><br>
+    本作では、「ホロライブ」の音楽を誰でも気軽にリズムゲームとして楽しむことができるほか、<br>
+    自分だけの譜面を作って遊べる「クリエイト譜面」など、<br>
+    「ホロドリ」ならではの多彩な機能を搭載しています。</h2>
+    
+    <div class="fade-in-up">
+      <p style="text-align: center;">▼アプリダウンロードはこちら▼</p>
+      <div class="btn-container">
+        <div class="download-container">
+          <a href="https://apps.apple.com/jp/app/%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96%E3%83%89%E3%83%AA%E3%83%BC%E3%83%A0%E3%82%B9/id6756641135" class="download-btn ios">App Store</a>
+          <a href="https://play.google.com/store/apps/details?id=game.qualiarts.hololive.dreams.jp&pli=1" class="download-btn android">Google Play</a>
+        </div>
+        
+        <h3>当サイトでは「ホロドリ」の遊び方や楽曲情報をまとめています。<br>
+        下のボタンから見たい項目を選んでチェックしましょう！</h3>
+      
+        <a href="dream_park.html" class="main-btn">ドリームパーク</a>
+        <a href="rhythm_game.html" class="main-btn">リズムゲーム</a>
+        <a href="song.html" class="main-btn">収録楽曲情報</a>
+        <a href="character_card.html" class="main-btn">キャラクターカード</a>
+      </div>
+    </div>
+
+    <div class="blue-strip">
+      <div class="news-container">
+        <span class="news-label">ニュース</span>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button type="button" class="carousel-btn prev-btn" id="carousel-prev">
+          <img src="img/next.png" alt="前へ">
+        </button>
+
+        <div class="carousel-container">
+          <div class="carousel-track" id="carousel-track">
+            <div class="carousel-scroll" id="instagram-news-list"></div>
+          </div>
+        </div>
+
+        <button type="button" class="carousel-btn next-btn" id="carousel-next">
+          <img src="img/prev.png" alt="次へ">
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <div class="full-width-box2 fade-in-up">
+    <p>当サイトはホロライブリスナーが作成した非公式サイトです。<br>
+    内容について、カバー株式会社およびホロライブプロダクション公式へのお問い合わせはお控えください。<br><br>
+    サイトに関するお問い合わせは<a href="https://x.com/ampere_coulomb" target="_blank">こちら</a></p>
+  </div>
+  <script src="news_img/instagram-news.js"></script>
+  <script>
+  // Lenis が読み込める環境ではスムーススクロールを有効化する
+  if (window.Lenis) {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+    });
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }
+
+  function revealAnimatedContent() {
+    const targets = document.querySelectorAll('.fade-in-up');
+    if (!targets.length) return;
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-show');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px' });
+      targets.forEach(el => observer.observe(el));
+    } else {
+      targets.forEach(el => el.classList.add('is-show'));
+    }
+    window.setTimeout(() => targets.forEach(el => el.classList.add('is-show')), 1200);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    revealAnimatedContent();
+
+    const list = document.getElementById('instagram-news-list');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    if (!list || !prevBtn || !nextBtn) return;
+
+    const fallbackPosts = [
+      { url: 'https://www.instagram.com/hololivedreams_info/' },
+    ];
+    const posts = Array.isArray(window.instagramNewsPosts) && window.instagramNewsPosts.length
+      ? window.instagramNewsPosts.slice(0, 5)
+      : fallbackPosts;
+
+    list.innerHTML = '';
+    posts.forEach((post, index) => {
+      const item = document.createElement('div');
+      item.className = 'carousel-item instagram-news-item';
+
+      const url = post.url || post.permalink || post;
+      const link = document.createElement('a');
+      link.className = 'instagram-image-card';
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+
+      const img = document.createElement('img');
+      img.src = post.img || post.image || `news_img/${String(index + 1).padStart(2, '0')}.jpg`;
+      img.alt = post.alt || 'Instagram news post';
+      img.loading = 'lazy';
+
+      const label = document.createElement('span');
+      label.className = 'instagram-image-label';
+      label.textContent = 'Instagram';
+
+      link.appendChild(img);
+      link.appendChild(label);
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    function moveByCard(direction) {
+      const item = list.querySelector('.carousel-item');
+      const gap = 20;
+      const amount = item ? item.getBoundingClientRect().width + gap : 380;
+      list.scrollBy({ left: amount * direction, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', () => moveByCard(-1));
+    nextBtn.addEventListener('click', () => moveByCard(1));
+
+  });
+</script>
+
+</body>
+</html>
+
+
