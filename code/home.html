@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -156,47 +156,170 @@
       ? window.instagramNewsPosts.slice(0, 5)
       : fallbackPosts;
 
+    const imageViewer = document.createElement('div');
+    imageViewer.className = 'news-image-viewer';
+    imageViewer.innerHTML = `
+      <button type="button" class="news-image-viewer-close" aria-label="閉じる">×</button>
+      <img class="news-image-viewer-img" alt="">
+    `;
+    document.body.appendChild(imageViewer);
+
+    const viewerImg = imageViewer.querySelector('.news-image-viewer-img');
+    const closeViewer = () => {
+      imageViewer.classList.remove('is-open');
+      viewerImg.removeAttribute('src');
+      viewerImg.alt = '';
+    };
+    const openViewer = (src, alt) => {
+      viewerImg.src = src;
+      viewerImg.alt = alt;
+      imageViewer.classList.add('is-open');
+    };
+
+    imageViewer.addEventListener('click', (event) => {
+      if (event.target === imageViewer || event.target.classList.contains('news-image-viewer-close')) {
+        closeViewer();
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && imageViewer.classList.contains('is-open')) {
+        closeViewer();
+      }
+    });
+
+    const loopedPosts = [];
+    for (let loop = 0; loop < 3; loop += 1) {
+      posts.forEach((post, index) => {
+        loopedPosts.push({ post, index });
+      });
+    }
+
     list.innerHTML = '';
-    posts.forEach((post, index) => {
+    loopedPosts.forEach(({ post, index }) => {
       const item = document.createElement('div');
       item.className = 'carousel-item instagram-news-item';
 
-      const url = post.url || post.permalink || post;
-      const link = document.createElement('a');
-      link.className = 'instagram-image-card';
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      const imageSrc = post.img || post.image || `news_img/${String(index + 1).padStart(2, '0')}.jpg`;
+      const imageAlt = post.alt || 'ニュース画像';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'instagram-image-card';
 
       const img = document.createElement('img');
-      img.src = post.img || post.image || `news_img/${String(index + 1).padStart(2, '0')}.jpg`;
-      img.alt = post.alt || 'Instagram news post';
+      img.src = imageSrc;
+      img.alt = imageAlt;
       img.loading = 'lazy';
 
-      const label = document.createElement('span');
-      label.className = 'instagram-image-label';
-      label.textContent = 'Instagram';
-
-      link.appendChild(img);
-      link.appendChild(label);
-      item.appendChild(link);
+      button.appendChild(img);
+      button.addEventListener('click', () => openViewer(imageSrc, imageAlt));
+      item.appendChild(button);
       list.appendChild(item);
     });
 
-    function moveByCard(direction) {
-      const item = list.querySelector('.carousel-item');
-      const gap = 20;
-      const amount = item ? item.getBoundingClientRect().width + gap : 380;
-      list.scrollBy({ left: amount * direction, behavior: 'smooth' });
+    let activeIndex = posts.length + 2;
+    let autoSlideTimer;
+
+    function getCenteredLeft(index) {
+      const item = list.children[index];
+      if (!item) return list.scrollLeft;
+      return item.offsetLeft - ((list.clientWidth - item.clientWidth) / 2);
     }
 
-    prevBtn.addEventListener('click', () => moveByCard(-1));
-    nextBtn.addEventListener('click', () => moveByCard(1));
+    let slideAnimationFrame;
+
+    function easeOutExpo(progress) {
+      return progress >= 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    }
+
+    function animateScrollTo(targetLeft, duration = 500) {
+      window.cancelAnimationFrame(slideAnimationFrame);
+      const originalSnap = list.style.scrollSnapType;
+      list.style.scrollSnapType = 'none';
+      list.style.scrollBehavior = 'auto';
+      const startLeft = list.scrollLeft;
+      const distance = targetLeft - startLeft;
+      const startTime = performance.now();
+
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        list.scrollLeft = startLeft + (distance * easeOutExpo(progress));
+        if (progress < 1) {
+          slideAnimationFrame = window.requestAnimationFrame(tick);
+        } else {
+          list.scrollLeft = targetLeft;
+          list.style.scrollSnapType = originalSnap;
+        }
+      }
+
+      slideAnimationFrame = window.requestAnimationFrame(tick);
+    }
+
+    function updateActiveCard() {
+      const activePostIndex = activeIndex % posts.length;
+      Array.from(list.children).forEach((item, index) => {
+        item.classList.toggle('is-active', index % posts.length === activePostIndex);
+      });
+    }
+    function scrollToIndex(index, behavior = 'smooth') {
+      const maxIndex = list.children.length - 1;
+      activeIndex = Math.max(0, Math.min(index, maxIndex));
+      updateActiveCard();
+      const targetLeft = getCenteredLeft(activeIndex);
+      if (behavior === 'auto') {
+        window.cancelAnimationFrame(slideAnimationFrame);
+        list.scrollLeft = targetLeft;
+      } else {
+        animateScrollTo(targetLeft);
+      }
+    }
+    function keepInMiddleLoop(direction) {
+      if (direction > 0 && activeIndex >= posts.length * 2) {
+        activeIndex = posts.length;
+        scrollToIndex(activeIndex, 'auto');
+      } else if (direction < 0 && activeIndex < posts.length) {
+        activeIndex = (posts.length * 2) - 1;
+        scrollToIndex(activeIndex, 'auto');
+      }
+    }
+
+    function moveByCard(direction) {
+      scrollToIndex(activeIndex + direction);
+      window.setTimeout(() => keepInMiddleLoop(direction), 540);
+    }
+
+    function moveNextAuto() {
+      moveByCard(1);
+    }
+
+    function restartAutoSlide() {
+      window.clearInterval(autoSlideTimer);
+      autoSlideTimer = window.setInterval(moveNextAuto, 3000);
+    }
+
+    window.requestAnimationFrame(() => {
+      scrollToIndex(activeIndex, 'auto');
+      restartAutoSlide();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      moveByCard(-1);
+      restartAutoSlide();
+    });
+    nextBtn.addEventListener('click', () => {
+      moveByCard(1);
+      restartAutoSlide();
+    });
+    list.addEventListener('mouseenter', () => window.clearInterval(autoSlideTimer));
+    list.addEventListener('mouseleave', restartAutoSlide);
+    list.addEventListener('touchstart', () => window.clearInterval(autoSlideTimer), { passive: true });
+    list.addEventListener('touchend', restartAutoSlide);
 
   });
 </script>
 
 </body>
 </html>
+
 
 
